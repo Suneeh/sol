@@ -8,12 +8,18 @@ namespace Sol.Overworld;
 /// </summary>
 public partial class TestMap : Node2D
 {
-	private const int TileSize = 16;
-	private const int MapWidth = 20;
-	private const int MapHeight = 15;
+	public const int TileSize = 16;
+	public const int MapWidth = 20;
+	public const int MapHeight = 15;
+
+	public const int TileGrass = 0;
+	public const int TilePath = 1;
+	public const int TileWater = 2;
+	public const int TileTree = 3;
+	public const int TileBuilding = 4;
 
 	// Map layout: 0=grass, 1=path, 2=water, 3=tree(blocked), 4=building(blocked)
-	private static readonly int[,] Layout = {
+	public static readonly int[,] Layout = {
 		{ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
 		{ 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 },
 		{ 3, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 3 },
@@ -60,6 +66,28 @@ public partial class TestMap : Node2D
 				}
 			}
 		}
+
+		// Spawn test NPCs
+		SpawnNpc("Robin", new Vector2(9, 3), new Color(0.9f, 0.4f, 0.3f),
+			"Hey! Welcome to Nufarm!",
+			"This is just a small village...",
+			"But there are creatures hidden\nall over the world!");
+
+		SpawnNpc("Ferdi", new Vector2(14, 8), new Color(0.3f, 0.5f, 0.9f),
+			"I'm Ferdi, the scientist.",
+			"I've been studying the\ncreatures in this region.",
+			"There are 7 elemental types.\nDid you know that?");
+	}
+
+	private void SpawnNpc(string npcName, Vector2 tilePos, Color color, params string[] lines)
+	{
+		var npcScene = GD.Load<PackedScene>("res://scenes/overworld/Npc.tscn");
+		var npc = npcScene.Instantiate<Npc>();
+		npc.NpcName = npcName;
+		npc.DialogueLines = lines;
+		npc.SpriteColor = color;
+		npc.Position = new Vector2(tilePos.X * TileSize + TileSize / 2, tilePos.Y * TileSize + TileSize / 2);
+		AddChild(npc);
 	}
 
 	public override void _Draw()

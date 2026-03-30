@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.6", "C#", "Mobile")
 
 [autoload]
 
+ThemeSetup="*res://src/Autoloads/ThemeSetup.cs"
 EventBus="*res://src/Autoloads/EventBus.cs"
 SceneManager="*res://src/Autoloads/SceneManager.cs"
 GameManager="*res://src/Autoloads/GameManager.cs"
