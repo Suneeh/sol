@@ -1,1 +1,16 @@
+# Brainstorms and plans (local only)
 docs/
+
+# Godot
+.godot/
+.mono/
+
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db

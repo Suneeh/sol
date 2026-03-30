@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://test_map"]
+
+[ext_resource type="Script" path="res://src/Overworld/TestMap.cs" id="1_map"]
+
+[node name="TestMap" type="Node2D"]
+script = ExtResource("1_map")
