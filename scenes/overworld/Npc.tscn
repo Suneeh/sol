@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/Overworld/Npc.cs" id="1_npc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(16, 16)
+size = Vector2(32, 32)
 
 [node name="Npc" type="Area2D"]
 script = ExtResource("1_npc")

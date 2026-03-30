@@ -1,6 +1,7 @@
 using Godot;
 using Sol.Autoloads;
 using Sol.Battle;
+using Sol.Core;
 using Sol.Core.Types;
 using Sol.Creatures;
 using Sol.Overworld;
@@ -14,7 +15,7 @@ namespace Sol.Player;
 /// </summary>
 public partial class Player : Area2D
 {
-	public const int TileSize = 16;
+	private static int TileSize => GameConstants.TileSize;
 
 	[Export] public float WalkSpeed { get; set; } = 4f;
 
@@ -26,7 +27,7 @@ public partial class Player : Area2D
 	/// <summary>The player's active creature. Set this when the game starts.</summary>
 	public CreatureInstance? ActiveCreature { get; set; }
 
-	private const float EncounterChance = 0.15f;
+	private static float EncounterChance => GameConstants.EncounterChance;
 
 	public override void _Ready()
 	{

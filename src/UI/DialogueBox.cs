@@ -1,5 +1,6 @@
 using Godot;
 using Sol.Autoloads;
+using Sol.Core;
 using Sol.Core.Types;
 
 namespace Sol.UI;
@@ -131,10 +132,10 @@ public partial class DialogueBox : CanvasLayer
 		// Background panel at the bottom of the viewport
 		_panel = new PanelContainer();
 		_panel.SetAnchorsPreset(Control.LayoutPreset.BottomWide);
-		_panel.OffsetTop = -40;
+		_panel.OffsetTop = -80;
 		_panel.OffsetBottom = 0;
-		_panel.OffsetLeft = 4;
-		_panel.OffsetRight = -4;
+		_panel.OffsetLeft = 8;
+		_panel.OffsetRight = -8;
 
 		// Style the panel
 		var style = new StyleBoxFlat
@@ -145,10 +146,10 @@ public partial class DialogueBox : CanvasLayer
 			BorderWidthLeft = 1,
 			BorderWidthRight = 1,
 			BorderColor = new Color(0.6f, 0.6f, 0.7f),
-			ContentMarginLeft = 4,
-			ContentMarginRight = 4,
-			ContentMarginTop = 2,
-			ContentMarginBottom = 2
+			ContentMarginLeft = 8,
+			ContentMarginRight = 8,
+			ContentMarginTop = 6,
+			ContentMarginBottom = 6
 		};
 		_panel.AddThemeStyleboxOverride("panel", style);
 
@@ -161,7 +162,7 @@ public partial class DialogueBox : CanvasLayer
 			Text = "",
 			HorizontalAlignment = HorizontalAlignment.Left,
 		};
-		_nameLabel.AddThemeFontSizeOverride("font_size", 7);
+		_nameLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeLarge);
 		_nameLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.8f, 0.4f));
 		vbox.AddChild(_nameLabel);
 
@@ -172,7 +173,7 @@ public partial class DialogueBox : CanvasLayer
 			AutowrapMode = TextServer.AutowrapMode.Word,
 			VisibleCharacters = 0
 		};
-		_textLabel.AddThemeFontSizeOverride("font_size", 7);
+		_textLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeNormal);
 		vbox.AddChild(_textLabel);
 
 		// Continue hint
@@ -182,7 +183,7 @@ public partial class DialogueBox : CanvasLayer
 			HorizontalAlignment = HorizontalAlignment.Right,
 			Visible = false
 		};
-		_continueHint.AddThemeFontSizeOverride("font_size", 6);
+		_continueHint.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
 		_continueHint.AddThemeColorOverride("font_color", new Color(0.6f, 0.6f, 0.6f));
 		vbox.AddChild(_continueHint);
 

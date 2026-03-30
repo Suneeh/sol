@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/Player/Player.cs" id="1_player"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
-size = Vector2(14, 14)
+size = Vector2(28, 28)
 
 [node name="Player" type="Area2D"]
 collision_layer = 2
@@ -16,5 +16,5 @@ script = ExtResource("1_player")
 shape = SubResource("RectangleShape2D_col")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
-target_position = Vector2(0, 16)
+target_position = Vector2(0, 32)
 collision_mask = 1

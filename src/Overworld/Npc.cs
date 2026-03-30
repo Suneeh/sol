@@ -21,7 +21,7 @@ public partial class Npc : Area2D
 		// Placeholder: tint the sprite if no texture
 		if (_sprite.Texture is null)
 		{
-			var img = Image.CreateEmpty(14, 14, false, Image.Format.Rgba8);
+			var img = Image.CreateEmpty(28, 28, false, Image.Format.Rgba8);
 			img.Fill(SpriteColor);
 			_sprite.Texture = ImageTexture.CreateFromImage(img);
 		}

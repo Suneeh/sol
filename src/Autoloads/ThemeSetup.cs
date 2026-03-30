@@ -18,7 +18,7 @@ public partial class ThemeSetup : Node
 
 		var theme = new Theme();
 		theme.DefaultFont = font;
-		theme.DefaultFontSize = 8;
+		theme.DefaultFontSize = 14;
 
 		// Apply to the entire scene tree
 		GetTree().Root.Theme = theme;

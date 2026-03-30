@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using Sol.Autoloads;
 using Sol.Battle.State;
+using Sol.Core;
 using Sol.Core.Types;
 using Sol.Creatures;
 
@@ -184,43 +185,48 @@ public partial class BattleScene : CanvasLayer
 		bg.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_root.AddChild(bg);
 
+		const int vw = GameConstants.ViewportWidth;
+		const int vh = GameConstants.ViewportHeight;
+		const int m = GameConstants.UiMargin;
+		const int sprSize = GameConstants.CreatureSpriteSize;
+
 		// Enemy info (top-left)
 		BuildCreaturePanel(true, out _enemyName, out _enemyHp, out _enemyHpBar, out _enemyLevel,
-			new Vector2(8, 4), "Enemy");
+			new Vector2(m * 2, m), "Enemy");
 
-		// Player info (bottom-right area)
+		// Player info (right side)
 		BuildCreaturePanel(false, out _playerName, out _playerHp, out _playerHpBar, out _playerLevel,
-			new Vector2(128, 56), "Player");
+			new Vector2(vw * 0.56f, vh * 0.34f), "Player");
 
 		// Creature "sprites" — colored rectangles for now
 		var enemySprite = new ColorRect
 		{
 			Color = GetTypeColor(_battle?.EnemyCreature.Type ?? CreatureType.Neutral),
-			Position = new Vector2(160, 8),
-			Size = new Vector2(32, 32)
+			Position = new Vector2(vw - sprSize - m * 4, m * 2),
+			Size = new Vector2(sprSize, sprSize)
 		};
 		_root.AddChild(enemySprite);
 
 		var playerSprite = new ColorRect
 		{
 			Color = GetTypeColor(_battle?.PlayerCreature.Type ?? CreatureType.Neutral),
-			Position = new Vector2(32, 48),
-			Size = new Vector2(32, 32)
+			Position = new Vector2(m * 8, vh * 0.3f),
+			Size = new Vector2(sprSize, sprSize)
 		};
 		_root.AddChild(playerSprite);
 
 		// Message box (bottom)
 		var msgPanel = new PanelContainer();
-		msgPanel.Position = new Vector2(4, 108);
-		msgPanel.Size = new Vector2(232, 48);
+		msgPanel.Position = new Vector2(m, vh * 0.7f);
+		msgPanel.Size = new Vector2(vw - m * 2, vh * 0.27f);
 		var msgStyle = new StyleBoxFlat
 		{
 			BgColor = PanelColor,
-			BorderWidthBottom = 1, BorderWidthTop = 1,
-			BorderWidthLeft = 1, BorderWidthRight = 1,
+			BorderWidthBottom = 2, BorderWidthTop = 2,
+			BorderWidthLeft = 2, BorderWidthRight = 2,
 			BorderColor = new Color(0.5f, 0.5f, 0.6f),
-			ContentMarginLeft = 4, ContentMarginRight = 4,
-			ContentMarginTop = 2, ContentMarginBottom = 2
+			ContentMarginLeft = 8, ContentMarginRight = 8,
+			ContentMarginTop = 6, ContentMarginBottom = 6
 		};
 		msgPanel.AddThemeStyleboxOverride("panel", msgStyle);
 		_root.AddChild(msgPanel);
@@ -233,13 +239,13 @@ public partial class BattleScene : CanvasLayer
 			Text = "",
 			AutowrapMode = TextServer.AutowrapMode.Word
 		};
-		_messageLabel.AddThemeFontSizeOverride("font_size", 7);
+		_messageLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeNormal);
 		msgVbox.AddChild(_messageLabel);
 
 		// Action panel (overlays message area when it's player's turn)
 		_actionPanel = new VBoxContainer();
-		_actionPanel.Position = new Vector2(4, 108);
-		_actionPanel.Size = new Vector2(232, 48);
+		_actionPanel.Position = new Vector2(m, vh * 0.7f);
+		_actionPanel.Size = new Vector2(vw - m * 2, vh * 0.27f);
 		_actionPanel.Visible = false;
 		_root.AddChild(_actionPanel);
 
@@ -250,14 +256,14 @@ public partial class BattleScene : CanvasLayer
 		{
 			var idx = i;
 			var btn = new Button { Text = $"Move {i + 1}" };
-			btn.AddThemeFontSizeOverride("font_size", 6);
-			btn.CustomMinimumSize = new Vector2(110, 18);
+			btn.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+			btn.CustomMinimumSize = new Vector2(vw / 2 - m * 2, 28);
 			btn.Pressed += () => OnMoveSelected(idx);
 			_moveGrid.AddChild(btn);
 		}
 
 		_fleeButton = new Button { Text = "Run" };
-		_fleeButton.AddThemeFontSizeOverride("font_size", 6);
+		_fleeButton.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
 		_fleeButton.Pressed += OnFleePressed;
 		_actionPanel.AddChild(_fleeButton);
 	}
@@ -267,24 +273,24 @@ public partial class BattleScene : CanvasLayer
 	{
 		var panel = new VBoxContainer();
 		panel.Position = pos;
-		panel.Size = new Vector2(100, 40);
+		panel.Size = new Vector2(200, 60);
 		_root.AddChild(panel);
 
 		var nameRow = new HBoxContainer();
 		panel.AddChild(nameRow);
 
 		nameLabel = new Label { Text = isEnemy ? _battle?.EnemyCreature.Nickname ?? defaultName : _battle?.PlayerCreature.Nickname ?? defaultName };
-		nameLabel.AddThemeFontSizeOverride("font_size", 7);
+		nameLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeNormal);
 		nameRow.AddChild(nameLabel);
 
 		levelLabel = new Label { Text = "Lv5" };
-		levelLabel.AddThemeFontSizeOverride("font_size", 6);
+		levelLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
 		levelLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
 		nameRow.AddChild(levelLabel);
 
 		hpBar = new ProgressBar
 		{
-			CustomMinimumSize = new Vector2(96, 6),
+			CustomMinimumSize = new Vector2(180, 10),
 			MaxValue = 100,
 			Value = 100,
 			ShowPercentage = false
@@ -292,7 +298,7 @@ public partial class BattleScene : CanvasLayer
 		panel.AddChild(hpBar);
 
 		hpLabel = new Label { Text = "??/??" };
-		hpLabel.AddThemeFontSizeOverride("font_size", 6);
+		hpLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
 		hpLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.8f, 0.7f));
 		panel.AddChild(hpLabel);
 	}

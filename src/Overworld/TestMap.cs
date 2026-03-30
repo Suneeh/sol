@@ -1,4 +1,5 @@
 using Godot;
+using Sol.Core;
 
 namespace Sol.Overworld;
 
@@ -8,7 +9,7 @@ namespace Sol.Overworld;
 /// </summary>
 public partial class TestMap : Node2D
 {
-	public const int TileSize = 16;
+	public static int TileSize => GameConstants.TileSize;
 	public const int MapWidth = 20;
 	public const int MapHeight = 15;
 
