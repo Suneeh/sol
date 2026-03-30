@@ -1,8 +1,7 @@
 # Raincastle
 
 ## Lore
-Birthtown of the main character.
-
+A big city with lots to do.
 
 ## Interesting Places
 

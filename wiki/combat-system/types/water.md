@@ -4,19 +4,18 @@
 
 ## Skills
 
-Can swim 
+Can swim
 
-## Effectiviy Multiplyers
+## Effectivity Multipliers
 
-| Type    | Multiplyer |
-| ------- | ---------- |
-| Neutral | 100%       |
-| Water   | 0%         |
-| Earth   | 100%       |
-| Fire    | 200%       |
-| Wind    | 70%        |
-| Poison  | 125%       |
-| Holy    | 100%       |
-| Shadow  | 100%       |
-| Ghost   | 100%       |
-| Undead  | 100%       |
+See [types.md](types.md) for the full chart.
+
+| Attacking → | Multiplier |
+| ----------- | ---------- |
+| vs Neutral  | 75%        |
+| vs Fire     | 200%       |
+| vs Nature   | 0%         |
+| vs Water    | -50% (heals) |
+| vs Sand     | 125%       |
+| vs Electricity | 75%    |
+| vs Wind     | 100%       |

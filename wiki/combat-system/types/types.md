@@ -11,7 +11,15 @@
 | Wind        | 75%     | 75%  | 125%   | 100%  | 200% | 0%          | -50% |
 
 
-Neutral (deals and gets 75% dmg to anything)
-Fire > Nature > Water > Fire
-Sand > Electricity > Wind > Sand
-(optional) Steel > Ice > Lava > Steel
+**Multiplier key:**
+- **200%** = super effective (double damage)
+- **125%** = strong
+- **100%** = neutral
+- **75%** = reduced (Neutral deals/receives 75% to everything)
+- **0%** = immune (no damage)
+- **-50%** = heals the target (50% of what damage would have been)
+
+**Type triangles:**
+- Fire > Nature > Water > Fire
+- Sand > Electricity > Wind > Sand
+- 
