@@ -16,4 +16,10 @@ Maybe implement a story about Karl that introduces that story.
 
 ### Cellar with Crocodiles / Aligators
 
-###
+## Charakters
+
+### The broken leg (robin)
+
+### The Scientist (ferdi)
+
+### 
