@@ -31,6 +31,9 @@ public partial class BattleScene : CanvasLayer
 	private Label _messageLabel = null!;
 	private GridContainer _moveGrid = null!;
 	private Button _fleeButton = null!;
+	private VBoxContainer _swapPanel = null!;
+	private HBoxContainer _swapButtonContainer = null!;
+	private Button _swapBackButton = null!;
 	private VBoxContainer _actionPanel = null!;
 
 	private readonly Queue<string> _messageQueue = new();
@@ -42,6 +45,7 @@ public partial class BattleScene : CanvasLayer
 		_battle = new BattleManager(player, enemy);
 		_battle.OnMessage += QueueMessage;
 		_battle.OnPlayerTurnStart += ShowActions;
+		_battle.OnPlayerCreatureFainted += ShowFaintedOptions;
 		_battle.OnBattleEnd += OnBattleEnd;
 		_battle.OnDamageDealt += (_, _, _) => UpdateHpBars();
 		_battle.OnHealing += (_, _, _) => UpdateHpBars();
@@ -87,6 +91,10 @@ public partial class BattleScene : CanvasLayer
 		{
 			CloseBattle();
 		}
+		else if (_faintedSwap)
+		{
+			ShowFaintedOptions();
+		}
 		else
 		{
 			// No more messages — if it's player turn, show actions
@@ -100,6 +108,14 @@ public partial class BattleScene : CanvasLayer
 		if (_messageQueue.Count > 0)
 		{
 			ShowNextMessage();
+			return;
+		}
+
+		// If current creature is fainted, go straight to swap/run
+		if (_battle.PlayerCreature.IsFainted)
+		{
+			_faintedSwap = true;
+			ShowFaintedOptions();
 			return;
 		}
 
@@ -137,6 +153,103 @@ public partial class BattleScene : CanvasLayer
 		_actionPanel.Visible = false;
 		_battle.SelectFlee();
 		ShowNextMessage();
+	}
+
+	private void ShowSwapPanel()
+	{
+		_actionPanel.Visible = false;
+		_swapPanel.Visible = true;
+
+		// Update back/run button based on context
+		_swapBackButton.Text = _faintedSwap ? "Run" : "Back";
+
+		// Clear old buttons
+		foreach (var child in _swapButtonContainer.GetChildren())
+			child.QueueFree();
+
+		// Add a button for each party member that isn't the current one and isn't fainted
+		var party = PartyManager.Instance?.Party;
+		if (party is null) return;
+
+		for (var i = 0; i < party.Count; i++)
+		{
+			var creature = party[i];
+			if (creature == _battle.PlayerCreature) continue;
+
+			var idx = i;
+			var btn = new Button
+			{
+				Text = $"{creature.Nickname} Lv{creature.Level}\n{creature.CurrentHp}/{creature.MaxHp} HP",
+				Disabled = creature.IsFainted
+			};
+			btn.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+			btn.CustomMinimumSize = new Vector2(140, 28);
+			btn.Pressed += () => OnSwapSelected(idx);
+			_swapButtonContainer.AddChild(btn);
+		}
+
+		if (_swapButtonContainer.GetChildCount() == 0)
+		{
+			var label = new Label { Text = "No other creatures!" };
+			label.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+			_swapButtonContainer.AddChild(label);
+		}
+	}
+
+	private void HideSwapPanel()
+	{
+		_swapPanel.Visible = false;
+		_actionPanel.Visible = true;
+	}
+
+	private void OnSwapBackPressed()
+	{
+		if (_faintedSwap)
+		{
+			// Run away after faint — guaranteed escape
+			_faintedSwap = false;
+			_swapPanel.Visible = false;
+			_battle.SelectFlee(guaranteed: true);
+			ShowNextMessage();
+		}
+		else
+		{
+			HideSwapPanel();
+		}
+	}
+
+	private void OnSwapSelected(int partyIndex)
+	{
+		var party = PartyManager.Instance?.Party;
+		if (party is null || partyIndex < 0 || partyIndex >= party.Count) return;
+
+		var newCreature = party[partyIndex];
+		var forced = _faintedSwap;
+		_faintedSwap = false;
+
+		_battle.SwapCreature(newCreature, forced);
+
+		_swapPanel.Visible = false;
+
+		// Update UI
+		_playerName.Text = newCreature.Nickname;
+		UpdateHpBars();
+		ShowNextMessage();
+	}
+
+	private bool _faintedSwap;
+
+	private void ShowFaintedOptions()
+	{
+		if (_messageQueue.Count > 0)
+		{
+			// Drain messages first, then show options
+			ShowNextMessage();
+			return;
+		}
+
+		_faintedSwap = true;
+		ShowSwapPanel();
 	}
 
 	private void OnBattleEnd(BattleOutcome outcome)
@@ -262,10 +375,39 @@ public partial class BattleScene : CanvasLayer
 			_moveGrid.AddChild(btn);
 		}
 
+		var bottomRow = new HBoxContainer();
+		_actionPanel.AddChild(bottomRow);
+
+		var swapButton = new Button { Text = "Swap" };
+		swapButton.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+		swapButton.CustomMinimumSize = new Vector2(vw / 2 - m * 2, 28);
+		swapButton.Pressed += ShowSwapPanel;
+		bottomRow.AddChild(swapButton);
+
 		_fleeButton = new Button { Text = "Run" };
 		_fleeButton.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+		_fleeButton.CustomMinimumSize = new Vector2(vw / 2 - m * 2, 28);
 		_fleeButton.Pressed += OnFleePressed;
-		_actionPanel.AddChild(_fleeButton);
+		bottomRow.AddChild(_fleeButton);
+
+		// Swap panel (hidden, replaces action panel when choosing a creature)
+		_swapPanel = new VBoxContainer();
+		_swapPanel.Position = new Vector2(m, vh * 0.7f);
+		_swapPanel.Size = new Vector2(vw - m * 2, vh * 0.27f);
+		_swapPanel.Visible = false;
+		_root.AddChild(_swapPanel);
+
+		var swapLabel = new Label { Text = "Switch to:" };
+		swapLabel.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+		_swapPanel.AddChild(swapLabel);
+
+		_swapButtonContainer = new HBoxContainer();
+		_swapPanel.AddChild(_swapButtonContainer);
+
+		_swapBackButton = new Button { Text = "Back" };
+		_swapBackButton.AddThemeFontSizeOverride("font_size", GameConstants.FontSizeSmall);
+		_swapBackButton.Pressed += OnSwapBackPressed;
+		_swapPanel.AddChild(_swapBackButton);
 	}
 
 	private void BuildCreaturePanel(bool isEnemy, out Label nameLabel, out Label hpLabel,

@@ -114,7 +114,12 @@ public class CreatureInstance
 	/// <summary>
 	/// Heal to full HP.
 	/// </summary>
-	public void FullHeal() => CurrentHp = MaxHp;
+	public void FullHeal()
+	{
+		CurrentHp = MaxHp;
+		foreach (var move in Moves)
+			move.CurrentPp = move.Data.MaxPp;
+	}
 
 	private void LearnMovesForLevel()
 	{

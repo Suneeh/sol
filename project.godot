@@ -23,6 +23,7 @@ SceneManager="*res://src/Autoloads/SceneManager.cs"
 GameManager="*res://src/Autoloads/GameManager.cs"
 SaveManager="*res://src/Autoloads/SaveManager.cs"
 AudioManager="*res://src/Autoloads/AudioManager.cs"
+PartyManager="*res://src/Creatures/PartyManager.cs"
 
 [display]
 

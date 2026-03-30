@@ -12,7 +12,7 @@ namespace Sol.Battle;
 /// </summary>
 public class BattleManager
 {
-	public CreatureInstance PlayerCreature { get; }
+	public CreatureInstance PlayerCreature { get; private set; }
 	public CreatureInstance EnemyCreature { get; }
 	public BattleState CurrentState { get; private set; }
 	public BattleOutcome Outcome { get; private set; }
@@ -25,6 +25,7 @@ public class BattleManager
 	public event Action<CreatureInstance, DamageResult, int>? OnHealing; // target, result, healAmount
 	public event Action? OnPlayerTurnStart;
 	public event Action<BattleOutcome>? OnBattleEnd;
+	public event Action? OnPlayerCreatureFainted;
 	public event Action? OnStateChanged;
 
 	private MoveInstance? _playerMove;
@@ -64,12 +65,41 @@ public class BattleManager
 		ExecuteTurn();
 	}
 
-	public void SelectFlee()
+	/// <summary>
+	/// Swap in a different creature. If forced (after faint), it's free.
+	/// Otherwise costs the player's turn — enemy attacks.
+	/// </summary>
+	public void SwapCreature(CreatureInstance newCreature, bool forced = false)
 	{
 		if (CurrentState != BattleState.PlayerTurn) return;
 
-		// Simple flee: 75% chance
-		if (GD.Randf() < 0.75f)
+		var oldFainted = PlayerCreature.IsFainted;
+		var oldName = PlayerCreature.Nickname;
+		PlayerCreature = newCreature;
+
+		if (oldFainted)
+			OnMessage?.Invoke($"Go, {newCreature.Nickname}!");
+		else
+			OnMessage?.Invoke($"Come back, {oldName}!");
+
+		OnMessage?.Invoke($"{newCreature.Nickname} is ready to fight!");
+
+		if (!forced && !oldFainted)
+		{
+			// Voluntary swap costs a turn — enemy attacks
+			PickEnemyMove();
+			ExecuteAction(EnemyCreature, PlayerCreature, _enemyMove!);
+			if (CheckBattleEnd()) return;
+		}
+
+		BeginPlayerTurn();
+	}
+
+	public void SelectFlee(bool guaranteed = false)
+	{
+		if (CurrentState != BattleState.PlayerTurn) return;
+
+		if (guaranteed || GD.Randf() < 0.75f)
 		{
 			OnMessage?.Invoke("Got away safely!");
 			Outcome = BattleOutcome.PlayerFled;
@@ -207,6 +237,25 @@ public class BattleManager
 		if (PlayerCreature.IsFainted)
 		{
 			OnMessage?.Invoke($"{PlayerCreature.Nickname} fainted!");
+
+			// Check if any party member is still alive
+			var party = PartyManager.Instance?.Party;
+			var hasAlive = false;
+			if (party is not null)
+			{
+				foreach (var c in party)
+					if (!c.IsFainted) { hasAlive = true; break; }
+			}
+
+			if (hasAlive)
+			{
+				// Prompt player to swap or flee — don't end battle yet
+				CurrentState = BattleState.PlayerTurn;
+				OnPlayerCreatureFainted?.Invoke();
+				return true; // stop the current turn
+			}
+
+			// All fainted — game over
 			Outcome = BattleOutcome.PlayerLose;
 			EndBattle();
 			return true;

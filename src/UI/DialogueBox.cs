@@ -26,6 +26,7 @@ public partial class DialogueBox : CanvasLayer
 
 	private const float CharsPerSecond = 30f;
 	private float _charTimer;
+	private System.Action? _onComplete;
 
 	public override void _Ready()
 	{
@@ -90,13 +91,14 @@ public partial class DialogueBox : CanvasLayer
 	/// <summary>
 	/// Open the dialogue box with the given lines.
 	/// </summary>
-	public void Open(string npcName, string[] lines)
+	public void Open(string npcName, string[] lines, System.Action? onComplete = null)
 	{
 		if (lines.Length == 0) return;
 
 		_lines = lines;
 		_currentLine = 0;
 		_active = true;
+		_onComplete = onComplete;
 
 		_nameLabel.Text = npcName;
 		ShowCurrentLine();
@@ -119,6 +121,8 @@ public partial class DialogueBox : CanvasLayer
 	{
 		_active = false;
 		TogglePanel(false);
+		_onComplete?.Invoke();
+		_onComplete = null;
 		GameManager.Instance?.SetMode(GameMode.Overworld);
 	}
 

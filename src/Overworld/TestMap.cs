@@ -78,6 +78,13 @@ public partial class TestMap : Node2D
 			"I'm Ferdi, the scientist.",
 			"I've been studying the\ncreatures in this region.",
 			"There are 7 elemental types.\nDid you know that?");
+
+		SpawnHealerNpc("Marion", new Vector2(12, 5), new Color(0.95f, 0.6f, 0.8f));
+
+		// Hidden creatures — tucked away in corners
+		SpawnCreatureNpc(creatureId: 2, level: 5, tilePos: new Vector2(1, 13));   // Leafyn — bottom-left corner
+		SpawnCreatureNpc(creatureId: 5, level: 4, tilePos: new Vector2(18, 1));   // Zapplet — top-right corner
+		SpawnCreatureNpc(creatureId: 4, level: 6, tilePos: new Vector2(3, 9));    // Dustling — near the trees
 	}
 
 	private void SpawnNpc(string npcName, Vector2 tilePos, Color color, params string[] lines)
@@ -87,6 +94,26 @@ public partial class TestMap : Node2D
 		npc.NpcName = npcName;
 		npc.DialogueLines = lines;
 		npc.SpriteColor = color;
+		npc.Position = new Vector2(tilePos.X * TileSize + TileSize / 2, tilePos.Y * TileSize + TileSize / 2);
+		AddChild(npc);
+	}
+
+	private void SpawnHealerNpc(string npcName, Vector2 tilePos, Color color)
+	{
+		var scene = GD.Load<PackedScene>("res://scenes/overworld/HealerNpc.tscn");
+		var npc = scene.Instantiate<HealerNpc>();
+		npc.NpcName = npcName;
+		npc.SpriteColor = color;
+		npc.Position = new Vector2(tilePos.X * TileSize + TileSize / 2, tilePos.Y * TileSize + TileSize / 2);
+		AddChild(npc);
+	}
+
+	private void SpawnCreatureNpc(int creatureId, int level, Vector2 tilePos)
+	{
+		var scene = GD.Load<PackedScene>("res://scenes/overworld/CreatureNpc.tscn");
+		var npc = scene.Instantiate<CreatureNpc>();
+		npc.CreatureId = creatureId;
+		npc.CreatureLevel = level;
 		npc.Position = new Vector2(tilePos.X * TileSize + TileSize / 2, tilePos.Y * TileSize + TileSize / 2);
 		AddChild(npc);
 	}

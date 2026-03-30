@@ -91,7 +91,20 @@ public partial class Player : Area2D
 		if (collider is Node node)
 		{
 			var npc = FindNpcParent(node);
-			if (npc is not null)
+			if (npc is null) return;
+
+			// Special NPC types
+			if (npc is CreatureNpc creatureNpc)
+			{
+				var lines = creatureNpc.GetDialogue();
+				DialogueBox.Instance?.Open(creatureNpc.NpcName, lines, () => creatureNpc.Recruit());
+			}
+			else if (npc is HealerNpc healer)
+			{
+				var lines = healer.GetDialogue();
+				DialogueBox.Instance?.Open(healer.NpcName, lines, () => healer.Heal());
+			}
+			else
 			{
 				var lines = npc.GetDialogue();
 				DialogueBox.Instance?.Open(npc.NpcName, lines);
@@ -132,6 +145,8 @@ public partial class Player : Area2D
 
 	private void CheckForEncounter()
 	{
+		// Always use the party's first non-fainted creature
+		ActiveCreature = PartyManager.Instance?.ActiveCreature;
 		if (ActiveCreature is null || ActiveCreature.IsFainted) return;
 
 		// Only trigger encounters on grass tiles
@@ -150,6 +165,8 @@ public partial class Player : Area2D
 
 	private void StartBattle()
 	{
+		// Always use the party's active creature
+		ActiveCreature = PartyManager.Instance?.ActiveCreature;
 		if (ActiveCreature is null) return;
 
 		// Pick a random wild creature at a similar level
